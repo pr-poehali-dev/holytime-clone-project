@@ -1,0 +1,21 @@
+{
+  "tests": [
+    {
+      "name": "Успешное сохранение заказа",
+      "method": "POST",
+      "body": {
+        "invoice_id": "test_123",
+        "nickname": "TestPlayer",
+        "package_id": "vip",
+        "package_name": "VIP",
+        "amount": 199
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true,
+        "invoice_id": "test_123"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

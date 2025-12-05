@@ -81,7 +81,7 @@ const Index = () => {
     }
   ];
 
-  const handlePurchase = () => {
+  const handlePurchase = async () => {
     if (!nickname.trim()) {
       toast.error('Введите ваш никнейм');
       return;
@@ -90,7 +90,54 @@ const Index = () => {
       toast.error('Выберите донат-пакет');
       return;
     }
-    toast.success(`Переход к оплате ${selectedPackage.name} для ${nickname}...`);
+
+    const loadingToast = toast.loading('Создание платежа...');
+
+    try {
+      const paymentResponse = await fetch('https://functions.poehali.dev/2d1e1ffb-9572-4bee-8c12-307b5ae42cb4', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          nickname: nickname,
+          package_id: selectedPackage.id,
+          package_name: selectedPackage.name,
+          amount: selectedPackage.price
+        })
+      });
+
+      const paymentData = await paymentResponse.json();
+
+      if (paymentResponse.ok && paymentData.payment_url) {
+        await fetch('https://functions.poehali.dev/7b390131-ec1a-46f0-aad1-43db33ceb713', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            invoice_id: paymentData.invoice_id,
+            nickname: nickname,
+            package_id: selectedPackage.id,
+            package_name: selectedPackage.name,
+            amount: selectedPackage.price
+          })
+        });
+
+        toast.dismiss(loadingToast);
+        toast.success('Перенаправление на оплату...');
+        setTimeout(() => {
+          window.location.href = paymentData.payment_url;
+        }, 500);
+      } else {
+        toast.dismiss(loadingToast);
+        toast.error(paymentData.error || 'Ошибка создания платежа');
+      }
+    } catch (error) {
+      toast.dismiss(loadingToast);
+      toast.error('Ошибка соединения с сервером');
+      console.error('Payment error:', error);
+    }
   };
 
   return (

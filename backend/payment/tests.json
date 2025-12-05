@@ -1,0 +1,34 @@
+{
+  "tests": [
+    {
+      "name": "Успешное создание платежа",
+      "method": "POST",
+      "body": {
+        "nickname": "TestPlayer",
+        "package_id": "vip",
+        "amount": 199
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "payment_url": "string",
+        "invoice_id": "string",
+        "amount": 199,
+        "description": "string"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Ошибка при отсутствии nickname",
+      "method": "POST",
+      "body": {
+        "package_id": "vip",
+        "amount": 199
+      },
+      "expectedStatus": 400,
+      "expectedBody": {
+        "error": "string"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}
